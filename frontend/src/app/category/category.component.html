@@ -1,23 +1,61 @@
-<div>
-  <h2>Categories</h2>
+<mat-card class="mb-4">
+  <mat-card-content>
+    <form (ngSubmit)="createCategory()" class="flex items-center">
+      <mat-form-field class="w-full mr-2">
+        <input
+          matInput
+          [(ngModel)]="newCategoryName"
+          name="newCategoryName"
+          placeholder="New category name"
+          required
+        />
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit">
+        Add Category
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>
 
-  <div>
-    <input [(ngModel)]="newCategoryName" placeholder="New category name" />
-    <button (click)="createCategory()">Add Category</button>
-  </div>
-
-  <ul>
-    @for (category of categories; track category.id) {
-    <li>
-      @if (editingCategory && editingCategory.id === category.id) {
-      <input [(ngModel)]="editingCategory.category_name" />
-      <button (click)="updateCategory()">Save</button>
-      } @else {
-      {{ category.category_name }}
-      <button (click)="startEdit(category)">Edit</button>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Categories</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-list>
+      @for (category of categories; track category.id) {
+      <mat-list-item class="h-auto py-2">
+        @if (editingCategory && editingCategory.id === category.id) {
+        <form (ngSubmit)="updateCategory()" class="flex items-center w-full">
+          <mat-form-field class="w-full mr-2">
+            <input
+              matInput
+              [(ngModel)]="editingCategory.category_name"
+              name="editCategoryName"
+              required
+            />
+          </mat-form-field>
+          <button mat-icon-button color="primary" type="submit">
+            <mat-icon>check</mat-icon>
+          </button>
+        </form>
+        } @else {
+        <span class="flex-grow">{{ category.category_name }}</span>
+        <button mat-icon-button color="primary" (click)="startEdit(category)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        }
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="deleteCategory(category.id)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+      } @empty {
+      <mat-list-item>No categories found.</mat-list-item>
       }
-      <button (click)="deleteCategory(category.id)">Delete</button>
-    </li>
-    }
-  </ul>
-</div>
+    </mat-list>
+  </mat-card-content>
+</mat-card>

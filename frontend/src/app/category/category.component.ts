@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CategoryService } from '../category.service';
 
 interface Category {
@@ -11,7 +17,16 @@ interface Category {
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatCardModule,
+    MatListModule,
+    MatSnackBarModule,
+  ],
   templateUrl: './category.component.html',
   styleUrl: './category.component.css',
 })
@@ -20,7 +35,10 @@ export class CategoryComponent {
   newCategoryName: string = '';
   editingCategory: Category | null = null;
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -29,7 +47,7 @@ export class CategoryComponent {
   loadCategories(): void {
     this.categoryService.getCategories().subscribe(
       (data) => (this.categories = data),
-      (error) => console.error('Error fetching categories:', error)
+      (error) => this.showError('Error fetching categories')
     );
   }
 
@@ -41,8 +59,9 @@ export class CategoryComponent {
           (data) => {
             this.categories.push(data);
             this.newCategoryName = '';
+            this.showSuccess('Category created successfully');
           },
-          (error) => console.error('Error creating category:', error)
+          (error) => this.showError('Error creating category')
         );
     }
   }
@@ -64,8 +83,9 @@ export class CategoryComponent {
               this.categories[index] = data;
             }
             this.editingCategory = null;
+            this.showSuccess('Category updated successfully');
           },
-          (error) => console.error('Error updating category:', error)
+          (error) => this.showError('Error updating category')
         );
     }
   }
@@ -74,8 +94,23 @@ export class CategoryComponent {
     this.categoryService.deleteCategory(id).subscribe(
       () => {
         this.categories = this.categories.filter((c) => c.id !== id);
+        this.showSuccess('Category deleted successfully');
       },
-      (error) => console.error('Error deleting category:', error)
+      (error) => this.showError('Error deleting category')
     );
+  }
+
+  showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['bg-green-600', 'text-white'],
+    });
+  }
+
+  showError(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['bg-red-600', 'text-white'],
+    });
   }
 }
