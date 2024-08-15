@@ -27,3 +27,9 @@ model AccessToken {
   token			String
   expiry		DateTime
 }
+
+model Category {
+  id           Int    @id @default(autoincrement())
+  category_name String
+}
+
