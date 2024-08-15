@@ -1,14 +1,13 @@
 import { join } from "path";
 import AutoLoad, { AutoloadPluginOptions } from "@fastify/autoload";
-import { FastifyPluginAsync, FastifyRequest, FastifyReply } from "fastify";
-import FastifyJwt from "@fastify/jwt";
+import { FastifyPluginAsync } from "fastify";
 import FastifyCors from "@fastify/cors";
+import categoryRoutes from "./controllers/category.controller";
 
 export type AppOptions = {
   // Place your custom options for app below here.
 } & Partial<AutoloadPluginOptions>;
 
-// Pass --options via CLI arguments in command to enable these options.
 const options: AppOptions = {};
 
 const app: FastifyPluginAsync<AppOptions> = async (
@@ -20,40 +19,20 @@ const app: FastifyPluginAsync<AppOptions> = async (
     origin: ALLOWED_DOMAINS,
   });
 
-  fastify.register(FastifyJwt, {
-    secret: process.env.APP_AUTH_SECRET_KEY as string,
-  });
-
-  fastify.decorate(
-    "authenticate",
-    async function (request: FastifyRequest, reply: FastifyReply) {
-      try {
-        await request.jwtVerify();
-      } catch (err) {
-        reply.send(err);
-      }
-    }
-  );
-
-  // Do not touch the following lines
+  // Register the category routes
+  fastify.register(categoryRoutes);
 
   // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
   void fastify.register(AutoLoad, {
     dir: join(__dirname, "plugins"),
     options: opts,
   });
 
   // This loads all plugins defined in routes
-  // define your routes in one of these
   void fastify.register(AutoLoad, {
     dir: join(__dirname, "routes"),
     options: opts,
   });
-
-  // Register the category controller
-  fastify.register(require("./controllers/category.controller"));
 };
 
 export default app;
