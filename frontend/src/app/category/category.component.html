@@ -10,9 +10,7 @@
           required
         />
       </mat-form-field>
-      <button mat-raised-button color="primary" type="submit">
-        Add Category
-      </button>
+      <button mat-raised-button color="primary" type="submit">Add</button>
     </form>
   </mat-card-content>
 </mat-card>
@@ -22,12 +20,13 @@
     <mat-card-title>Categories</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <mat-list>
-      @for (category of categories; track category.id) {
-      <mat-list-item class="h-auto py-2">
-        @if (editingCategory && editingCategory.id === category.id) {
-        <form (ngSubmit)="updateCategory()" class="flex items-center w-full">
-          <mat-form-field class="w-full mr-2">
+    <table mat-table [dataSource]="categories" class="w-full">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let category">
+          @if (editingCategory && editingCategory.id === category.id) {
+          <mat-form-field class="w-full">
             <input
               matInput
               [(ngModel)]="editingCategory.category_name"
@@ -35,27 +34,37 @@
               required
             />
           </mat-form-field>
-          <button mat-icon-button color="primary" type="submit">
+          } @else {
+          {{ category.category_name }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let category">
+          @if (editingCategory && editingCategory.id === category.id) {
+          <button mat-icon-button color="primary" (click)="updateCategory()">
             <mat-icon>check</mat-icon>
           </button>
-        </form>
-        } @else {
-        <span class="flex-grow">{{ category.category_name }}</span>
-        <button mat-icon-button color="primary" (click)="startEdit(category)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        }
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="deleteCategory(category.id)"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-list-item>
-      } @empty {
-      <mat-list-item>No categories found.</mat-list-item>
-      }
-    </mat-list>
+          } @else {
+          <button mat-icon-button color="primary" (click)="startEdit(category)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          }
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deleteCategory(category.id)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['name', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['name', 'actions']"></tr>
+    </table>
   </mat-card-content>
 </mat-card>

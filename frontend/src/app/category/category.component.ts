@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CategoryService } from '../category.service';
 
@@ -24,13 +24,13 @@ interface Category {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatListModule,
+    MatTableModule,
     MatSnackBarModule,
   ],
   templateUrl: './category.component.html',
-  styleUrl: './category.component.css',
+  styleUrls: ['./category.component.css'],
 })
-export class CategoryComponent {
+export class CategoryComponent implements OnInit {
   categories: Category[] = [];
   newCategoryName: string = '';
   editingCategory: Category | null = null;
@@ -57,7 +57,7 @@ export class CategoryComponent {
         .createCategory({ category_name: this.newCategoryName })
         .subscribe(
           (data) => {
-            this.categories.push(data);
+            this.categories = [...this.categories, data];
             this.newCategoryName = '';
             this.showSuccess('Category created successfully');
           },
@@ -78,10 +78,9 @@ export class CategoryComponent {
         })
         .subscribe(
           (data) => {
-            const index = this.categories.findIndex((c) => c.id === data.id);
-            if (index !== -1) {
-              this.categories[index] = data;
-            }
+            this.categories = this.categories.map((c) =>
+              c.id === data.id ? data : c
+            );
             this.editingCategory = null;
             this.showSuccess('Category updated successfully');
           },
