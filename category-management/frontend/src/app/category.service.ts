@@ -6,12 +6,16 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class CategoryService {
-  private baseUrl = 'http://localhost:3000'; // Update with your Fastify server URL
+  private baseUrl = 'http://localhost:3000'; // Replace with your backend URL
 
   constructor(private http: HttpClient) {}
 
   getCategories(): Observable<any> {
     return this.http.get(`${this.baseUrl}/categories`);
+  }
+
+  getCategoryById(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/category/${id}`);
   }
 
   createCategory(category: any): Observable<any> {
