@@ -1,36 +1,81 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CategoryService } from '../category.service';
 
 interface Category {
   id: number;
   category_name: string;
 }
 
-@Injectable({
-  providedIn: 'root',
+@Component({
+  selector: 'app-category',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './category.component.html',
+  styleUrl: './category.component.css',
 })
-export class CategoryService {
-  private apiUrl = 'http://localhost:3000';
+export class CategoryComponent {
+  categories: Category[] = [];
+  newCategoryName: string = '';
+  editingCategory: Category | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private categoryService: CategoryService) {}
 
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories`);
+  ngOnInit(): void {
+    this.loadCategories();
   }
 
-  createCategory(category: { category_name: string }): Observable<Category> {
-    return this.http.post<Category>(`${this.apiUrl}/category`, category);
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe(
+      (data) => (this.categories = data),
+      (error) => console.error('Error fetching categories:', error)
+    );
   }
 
-  updateCategory(
-    id: number,
-    category: { category_name: string }
-  ): Observable<Category> {
-    return this.http.put<Category>(`${this.apiUrl}/category/${id}`, category);
+  createCategory(): void {
+    if (this.newCategoryName.trim()) {
+      this.categoryService
+        .createCategory({ category_name: this.newCategoryName })
+        .subscribe(
+          (data) => {
+            this.categories.push(data);
+            this.newCategoryName = '';
+          },
+          (error) => console.error('Error creating category:', error)
+        );
+    }
   }
 
-  deleteCategory(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/category/${id}`);
+  startEdit(category: Category): void {
+    this.editingCategory = { ...category };
+  }
+
+  updateCategory(): void {
+    if (this.editingCategory) {
+      this.categoryService
+        .updateCategory(this.editingCategory.id, {
+          category_name: this.editingCategory.category_name,
+        })
+        .subscribe(
+          (data) => {
+            const index = this.categories.findIndex((c) => c.id === data.id);
+            if (index !== -1) {
+              this.categories[index] = data;
+            }
+            this.editingCategory = null;
+          },
+          (error) => console.error('Error updating category:', error)
+        );
+    }
+  }
+
+  deleteCategory(id: number): void {
+    this.categoryService.deleteCategory(id).subscribe(
+      () => {
+        this.categories = this.categories.filter((c) => c.id !== id);
+      },
+      (error) => console.error('Error deleting category:', error)
+    );
   }
 }
