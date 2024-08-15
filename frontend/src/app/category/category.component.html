@@ -1,0 +1,23 @@
+<div>
+  <h2>Categories</h2>
+
+  <div>
+    <input [(ngModel)]="newCategoryName" placeholder="New category name" />
+    <button (click)="createCategory()">Add Category</button>
+  </div>
+
+  <ul>
+    @for (category of categories; track category.id) {
+    <li>
+      @if (editingCategory && editingCategory.id === category.id) {
+      <input [(ngModel)]="editingCategory.category_name" />
+      <button (click)="updateCategory()">Save</button>
+      } @else {
+      {{ category.category_name }}
+      <button (click)="startEdit(category)">Edit</button>
+      }
+      <button (click)="deleteCategory(category.id)">Delete</button>
+    </li>
+    }
+  </ul>
+</div>
