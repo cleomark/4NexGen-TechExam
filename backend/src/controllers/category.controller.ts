@@ -8,6 +8,15 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
     "/category",
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { category_name } = request.body as any;
+      const existingCategory = await prisma.category.findFirst({
+        where: { category_name: category_name }
+      });
+
+      if (existingCategory) {
+        reply.status(400).send({ error: "Category already exists" });
+        return;
+      }
+
       const category = await prisma.category.create({
         data: { category_name },
       });

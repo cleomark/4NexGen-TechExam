@@ -61,7 +61,16 @@ export class CategoryComponent implements OnInit {
             this.newCategoryName = '';
             this.showSuccess('Category created successfully');
           },
-          (error) => this.showError('Error creating category')
+          (error) => {
+            if (
+              error.error &&
+              error.error.error === 'Category already exists'
+            ) {
+              this.showError('Category already exists');
+            } else {
+              this.showError('Error creating category');
+            }
+          }
         );
     }
   }
